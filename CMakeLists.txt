@@ -60,6 +60,18 @@ print(';'.join(include_paths()), end='')
 
 execute_process(
   COMMAND python3 -c "
+import os, glob
+nvidia_init = __import__('nvidia').__file__
+base = os.path.dirname(os.path.abspath(nvidia_init))
+dirs = sorted(glob.glob(os.path.join(base, '*', 'include')))
+print(';'.join(dirs), end='')
+"
+  OUTPUT_VARIABLE NVIDIA_INCLUDE_PATHS
+  ERROR_QUIET
+)
+
+execute_process(
+  COMMAND python3 -c "
 from torch.utils.cpp_extension import library_paths
 print(';'.join(library_paths()), end='')
 "
@@ -73,6 +85,7 @@ target_include_directories(
   3rd/cutlass/include
   ${CUDAToolkit_INCLUDE_DIRS}
   ${TORCH_INCLUDE_PATHS}
+  ${NVIDIA_INCLUDE_PATHS}
 )
 
 target_link_directories(
